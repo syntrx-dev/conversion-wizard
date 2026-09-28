@@ -1,0 +1,74 @@
+# Conversion Wizard — conversion-wizard.net (Next.js static export on Apache/GoDaddy)
+# Deployed to the site root as .htaccess by deploy-conversionwizard.ps1.
+
+Options -Indexes
+ErrorDocument 404 /404.html
+
+# --- Canonicalize to https://conversion-wizard.net (non-www, https) ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} ^www\.conversion-wizard\.net$ [NC]
+  RewriteRule ^ https://conversion-wizard.net%{REQUEST_URI} [L,R=301]
+
+  # Collapse the literal .../index.html duplicate URLs onto their clean directory
+  # URL (e.g. /heic-png/index.html -> /heic-png/, /index.html -> /). Matching on
+  # THE_REQUEST means this only fires for real external requests, not Apache's
+  # internal DirectoryIndex rewrite, so there's no loop. Kills "duplicate URL"
+  # signals in Search Console.
+  RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+
+  # Old converter-landing URLs were renamed to the new converter routes.
+  RewriteRule ^heic-to-png/?$ /heic-png/ [L,R=301]
+  RewriteRule ^heif-to-png/?$ /heif-png/ [L,R=301]
+</IfModule>
+
+# --- Security headers (the static export can't send these via Next) ----------
+# CSP notes: 'wasm-unsafe-eval' is required by the HEIC decoder (libheif/WASM);
+# 'unsafe-inline' in script-src is required by Next's inline hydration bootstrap.
+# The app renders no untrusted HTML, so the residual risk is minimal. 'blob:' is
+# needed for the object URLs used by PNG previews/downloads. The googlesyndication
+# / googleadservices / doubleclick / google.com hosts and broad img/frame sources
+# are required for Google AdSense to load and render ads.
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://adservice.google.com https://*.googlesyndication.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' blob: data: https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.google.com https://*.g.doubleclick.net https://*.googleadservices.com; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://*.googlesyndication.com https://*.doubleclick.net; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # HSTS: force HTTPS for 2 years incl. subdomains. Safe here — the whole site is
+  # HTTPS-only and 301s http→https. `preload` makes it eligible for the browser
+  # preload list (submit at hstspreload.org to actually enroll).
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+</IfModule>
+
+# --- Caching -----------------------------------------------------------------
+<IfModule mod_headers.c>
+  # Content-hashed build assets (JS/CSS/fonts under _next/static) never change
+  # for a given URL -> cache hard for a year.
+  <FilesMatch "\.(js|mjs|css|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # Images/icons may be swapped occasionally -> a month is a safe balance.
+  <FilesMatch "\.(png|jpe?g|gif|svg|ico|webp)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  # Markup, data and the manifest must always revalidate so updates show up.
+  <FilesMatch "\.(html|json|xml|txt|webmanifest)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  # The service worker must never be long-cached, or clients get stuck on an old
+  # shell. Listed last so it overrides the generic .js rule above.
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  # ESM chunks (e.g. the pdf.js worker) must be served as JavaScript or module
+  # workers fail to load. Some Apache installs don't map .mjs by default.
+  AddType application/javascript .mjs .js
+</IfModule>

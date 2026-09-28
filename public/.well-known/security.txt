@@ -1,0 +1,5 @@
+# Security contact for conversion-wizard.net (RFC 9116)
+Contact: https://conversion-wizard.net/contact/
+Expires: 2027-08-29T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://conversion-wizard.net/.well-known/security.txt
