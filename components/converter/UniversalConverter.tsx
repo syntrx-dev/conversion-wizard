@@ -31,9 +31,20 @@ function makeConversion(to: FormatMeta): Conversion {
 /**
  * The homepage's do-it-all converter: drop any supported image, pick an output
  * format, and it detects each file's source type automatically.
+ *
+ * `defaultTarget` picks which output starts selected, so a guide can embed this
+ * pre-set to the format that article recommends. It's a plain string rather than
+ * a `FormatMeta` so a server component (an article page) can pass it across the
+ * client boundary.
  */
-export function UniversalConverter() {
-  const [target, setTarget] = useState<FormatMeta>(formats.png);
+export function UniversalConverter({
+  defaultTarget = 'png',
+}: {
+  defaultTarget?: 'png' | 'jpg' | 'webp';
+} = {}) {
+  const [target, setTarget] = useState<FormatMeta>(
+    formats[defaultTarget] ?? formats.png,
+  );
 
   const toolbar = (
     <div className="flex flex-wrap items-center justify-center gap-2 text-sm">

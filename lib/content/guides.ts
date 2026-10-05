@@ -27,6 +27,19 @@ const THEME_KEYWORDS: Record<string, string[]> = {
   ],
   heic: ['heic', 'heif', 'iphone', 'android', 'safe', 'uploading', 'windows'],
   format: ['format', 'svg', 'pdf', 'shopify', 'web', 'webp', 'avif'],
+  // Pages targeting a literal error message the reader pasted into a search
+  // box. Grouped so someone who arrived on one error page sees the others.
+  error: [
+    'not-an-accepted',
+    'accepted image type',
+    'doesnt-support-this-file',
+    'support this file format',
+    'doesnt-recognize',
+    'recognize',
+    'damaged',
+    'not-permitted',
+    'security reasons',
+  ],
 };
 
 function themeOf(g: GuideEntry): string {
@@ -190,6 +203,30 @@ export const guides: GuideEntry[] = [
     title: `Discord: "Your Files Are Too Powerful" — How to Fix an Image That's Too Large`,
     description:
       "Discord caps free uploads at 10 MB per file (Nitro raises it). Here's why an image trips the too-powerful error and how to compress it under the limit.",
+  },
+  {
+    slug: 'photos-doesnt-support-this-file-format',
+    title: `"It Looks Like We Don't Support This File Format" — How to Fix It`,
+    description:
+      'The Windows Photos error almost always means a missing HEIC/HEVC codec, not a broken photo. How to tell the difference, and how to open the file without installing anything.',
+  },
+  {
+    slug: 'preview-doesnt-recognize-file-format',
+    title: `"Damaged or Use a File Format That Preview Doesn't Recognize" — Mac Fix`,
+    description:
+      'This macOS error bundles two different problems into one sentence. Here is the 30-second test that tells them apart, and the fix for the common one.',
+  },
+  {
+    slug: 'not-an-accepted-image-type',
+    title: `"Not an Accepted Image Type" — How to Fix a Rejected Upload`,
+    description:
+      'Upload forms that reject your photo as the wrong type are usually looking at a HEIC from your phone. How to check what you have and convert it to what the form wants.',
+  },
+  {
+    slug: 'file-type-not-permitted-for-security-reasons',
+    title: `"This File Type Is Not Permitted for Security Reasons" — WordPress Fix`,
+    description:
+      'WordPress blocks uploads outside its allow-list. Which image formats trigger it, why converting beats disabling the check, and how to convert safely.',
   },
   {
     slug: 'reduce-photo-file-size-on-iphone',
