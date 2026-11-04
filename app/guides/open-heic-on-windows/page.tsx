@@ -149,6 +149,16 @@ export default function Page() {
         </li>
       </ul>
 
+      <p>
+        If Photos is showing the specific message{' '}
+        <Link href="/guides/photos-doesnt-support-this-file-format">
+          &ldquo;it looks like we don&rsquo;t support this file format&rdquo;
+        </Link>
+        , that guide walks through what that wording means, how to tell a codec gap
+        apart from a genuinely damaged file, and what to do when the extensions are
+        installed and it still fails.
+      </p>
+
       <h2>Frequently asked questions</h2>
       <h3>Is the HEIC codec really not free on Windows?</h3>
       <p>

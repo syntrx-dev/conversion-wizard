@@ -167,6 +167,16 @@ export default function Page() {
         </li>
       </ul>
 
+      <p>
+        If WordPress instead says{' '}
+        <Link href="/guides/file-type-not-permitted-for-security-reasons">
+          &ldquo;this file type is not permitted for security reasons&rdquo;
+        </Link>
+        , that is a different error with a different fix: the format is blocked, not the
+        size. It usually means a HEIC, AVIF or SVG, and converting is a far safer answer
+        than switching off WordPress&rsquo;s upload filtering.
+      </p>
+
       <h2>Frequently asked questions</h2>
 
       <h3>What is the maximum image size for WordPress?</h3>

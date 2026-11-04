@@ -167,6 +167,15 @@ export default function Page() {
         have to worry about format here.
       </p>
 
+      <p>
+        Worth separating two failures that look alike: a form can reject your photo for
+        being too big, or for being the wrong <em>type</em>. If the message says anything
+        about the file not being{' '}
+        <Link href="/guides/not-an-accepted-image-type">an accepted image type</Link>, no
+        amount of compressing will help — that is a HEIC-from-your-phone problem, and it
+        needs converting rather than shrinking.
+      </p>
+
       <h2>Frequently asked questions</h2>
 
       <h3>What size should I compress my image to?</h3>

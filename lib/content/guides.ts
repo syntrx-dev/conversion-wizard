@@ -57,8 +57,38 @@ function themeOf(g: GuideEntry): string {
 }
 
 /**
+ * Published guides that Google has NOT indexed yet.
+ *
+ * Search Console reported all four of these as "Discovered - currently not
+ * indexed" with `lastCrawlTime` of never, four weeks after launch. Being in the
+ * sitemap wasn't enough: Google finds pages worth crawling by following links
+ * from pages it already crawls often, and theme-matching in `relatedGuides`
+ * had quietly sealed these into their own cluster — they linked to each other
+ * and nothing else linked in.
+ *
+ * So every article now reserves one "Related guides" slot for one of these,
+ * rotated by the current slug so the inbound links spread across all of them
+ * instead of piling onto one. Drop a slug from this list once it's indexed, or
+ * the healthy pages keep spending a slot on it forever.
+ */
+const NEEDS_DISCOVERY = [
+  'photos-doesnt-support-this-file-format',
+  'preview-doesnt-recognize-file-format',
+  'not-an-accepted-image-type',
+  'file-type-not-permitted-for-security-reasons',
+];
+
+/** Stable small hash, so a given page always promotes the same guide. */
+function hashSlug(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+/**
  * Pick `n` guides related to `currentSlug`: same-theme siblings first (so the
- * link is genuinely relevant), then the priority near-winners, then the rest.
+ * link is genuinely relevant), then the priority near-winners, then the rest —
+ * with one slot reserved for an unindexed guide that needs the crawl path.
  * Passing an unknown/empty slug (e.g. a non-guide page) surfaces the priority
  * set. Drives the "Related guides" block that spreads internal links.
  */
@@ -78,6 +108,18 @@ export function relatedGuides(currentSlug: string, n = 4): GuideEntry[] {
     if (!seen.has(g.slug)) {
       seen.add(g.slug);
       out.push(g);
+    }
+  }
+
+  // Reserve the last slot for an unindexed guide, unless this page already
+  // surfaces one (the error cluster links to its own siblings anyway).
+  const candidates = NEEDS_DISCOVERY.filter((s) => s !== currentSlug);
+  if (candidates.length > 0) {
+    const head = out.slice(0, n);
+    if (!head.some((g) => NEEDS_DISCOVERY.includes(g.slug))) {
+      const pick = candidates[hashSlug(currentSlug || 'home') % candidates.length];
+      const entry = guides.find((g) => g.slug === pick);
+      if (entry) return [...head.slice(0, n - 1), entry];
     }
   }
   return out.slice(0, n);

@@ -155,6 +155,19 @@ export default function Page() {
         makes it the quickest way to rescue a file that stubbornly won't open elsewhere.
       </p>
 
+      <p>
+        Two error messages are common enough to have their own walkthroughs. On Windows,
+        see{' '}
+        <Link href="/guides/photos-doesnt-support-this-file-format">
+          &ldquo;it looks like we don&rsquo;t support this file format&rdquo;
+        </Link>
+        . On a Mac, see{' '}
+        <Link href="/guides/preview-doesnt-recognize-file-format">
+          &ldquo;damaged or use a file format that Preview doesn&rsquo;t recognize&rdquo;
+        </Link>
+        , which covers why some HEIC photos open and others don&rsquo;t on the same Mac.
+      </p>
+
       <h2>Frequently asked questions</h2>
       <h3>Why does renaming a HEIC to .jpg not fix it?</h3>
       <p>
